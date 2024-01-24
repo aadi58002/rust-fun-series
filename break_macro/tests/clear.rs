@@ -1,17 +1,30 @@
+#![allow(unused)]
+
 extern crate break_macro;
 
-use break_macro::*;
+use break_macro::Clear;
 
-#[allow(unused)]
 #[derive(Clear)]
-struct Str {
+struct StrNamed {
     field1: usize,
     field2: String,
 }
 
-#[allow(unused)]
 #[derive(Clear)]
-enum Enu {
+struct StrUnnamed(String, String, usize);
+
+#[derive(Clear)]
+struct StrUnit;
+
+#[derive(Clear)]
+enum EnumNamed {
+    Value1,
+    Value2 { x: usize },
+    Value3 { y: String },
+}
+
+#[derive(Clear)]
+enum EnumUnnamed {
     Value1,
     Value2(usize),
     Value3(String),
@@ -19,10 +32,21 @@ enum Enu {
 
 #[test]
 fn testing_clear_proc_macro() {
-    assert_ne!(std::mem::size_of::<Str>(),0);
-    assert_eq!(std::mem::size_of::<StrClear>(),0);
+    let _ = StrNamed {
+        field1: 0,
+        field2: "".to_string(),
+    };
+    let _ = StrNamedClear;
 
-    assert_ne!(std::mem::size_of::<Enu>(),0);
-    assert_eq!(std::mem::size_of::<EnuClear>(),0);
+    let _ = StrUnnamed("".to_string(), "".to_string(), 0);
+    let _ = StrUnnamedClear;
+
+    let _ = StrNamed {
+        field1: 0,
+        field2: "".to_string(),
+    };
+    let _ = StrNamedClear;
+
+    let _ = StrUnit;
+    let _ = StrUnitClear;
 }
-

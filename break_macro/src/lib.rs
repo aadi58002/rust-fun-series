@@ -5,6 +5,29 @@ use proc_macro2::Ident;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Field};
 
+/// The macro checks the type of the input type and generates a new struct or 
+/// enum with the same name as the input item, but with "Clear" appended to it.
+///
+/// If the input data is a struct, the macro generates an empty struct with the
+/// new name. If the input data is an enum, the macro generates an empty enum
+/// with the new name.
+///
+/// If the input data is a union, the macro panics with a message saying that
+/// empty unions are not allowed in Rust.
+///
+/// # Example
+///
+/// ```
+/// use custom_derive::Clear;
+///
+/// #[derive(Clear)]
+/// struct MyStruct {
+///     field1: i32,
+///     field2: String,
+/// }
+///
+/// struct MyStructClear;
+/// ```
 #[proc_macro_derive(Clear)]
 pub fn derive_clear_fn(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -33,6 +56,24 @@ fn remove_string_field(field: &&Field) -> bool {
     }
 }
 
+/// This macro defines a custom derive macro named "ClearString".
+///
+/// The macro generates a new struct or enum or union with the same name as the input item, but with "ClearString" appended to it, while removing fields of type `String`.
+///
+/// # Example
+///
+/// ```
+/// use crate::ClearString;
+///
+/// #[derive(Clear)]
+/// struct MyStruct {
+///     field1: i32,
+///     field2: String,
+/// }
+///
+/// struct MyStructClearString{
+///     field1: i32,
+/// };
 #[proc_macro_derive(ClearString)]
 pub fn derive_clear_string_fn(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -78,6 +119,9 @@ pub fn derive_clear_string_fn(input: proc_macro::TokenStream) -> proc_macro::Tok
                 .filter(|val| match &val.fields {
                     syn::Fields::Unnamed(syn::FieldsUnnamed { unnamed, .. }) => {
                         remove_string_field(&unnamed.iter().nth(0).unwrap())
+                    }
+                    syn::Fields::Named(syn::FieldsNamed{named, .. }) => {
+                        remove_string_field(&named.iter().nth(0).unwrap())
                     }
                     _ => true,
                 })
